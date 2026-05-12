@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package account;
+
+//Messages 
+
+message Account {
+  string id      = 1;
+  string owner   = 2;
+  float  balance = 3;
+  string currency = 4;
+}
+
+message CreateAccountRequest {
+  string owner    = 1;
+  float  balance  = 2;
+  string currency = 3;
+}
+
+message CreateAccountResponse {
+  Account account = 1;
+}
+
+message GetAccountRequest {
+  string id = 1;
+}
+
+message GetAccountResponse {
+  Account account = 1;
+}
+
+message GetAllAccountsRequest {}
+
+message GetAllAccountsResponse {
+  repeated Account accounts = 1;
+}
+message UpdateBalanceRequest {
+  string id      = 1;
+  float  balance = 2;
+}
+
+message UpdateBalanceResponse {
+  Account account = 1;
+}
+// Service 
+
+service AccountService {
+  rpc CreateAccount  (CreateAccountRequest)   returns (CreateAccountResponse);
+  rpc GetAccount     (GetAccountRequest)      returns (GetAccountResponse);
+  rpc GetAllAccounts (GetAllAccountsRequest)  returns (GetAllAccountsResponse);
+  rpc UpdateBalance  (UpdateBalanceRequest)   returns (UpdateBalanceResponse);
+}

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package history;
+
+//Messages
+
+message HistoryEntry {
+  string id        = 1;
+  string accountId = 2;
+  string type      = 3;
+  float  amount    = 4;
+  float  newBalance = 5;
+  string timestamp = 6;
+}
+
+message GetHistoryRequest {
+  string accountId = 1;
+}
+
+message GetHistoryResponse {
+  repeated HistoryEntry entries = 1;
+}
+
+//Service 
+
+service HistoryService {
+  rpc GetHistory (GetHistoryRequest) returns (GetHistoryResponse);
+}

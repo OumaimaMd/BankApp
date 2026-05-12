@@ -1,0 +1,33 @@
+type Account {
+  id: String!
+  owner: String!
+  balance: Float!
+  currency: String!
+}
+
+type Transaction {
+  transactionId: String!
+  newBalance: Float!
+}
+
+type HistoryEntry {
+  id: String!
+  accountId: String!
+  type: String!
+  amount: Float!
+  newBalance: Float!
+  timestamp: String!
+}
+
+type Query {
+  account(id: String!): Account
+  accounts: [Account]
+  history(accountId: String!): [HistoryEntry]
+}
+
+type Mutation {
+  createAccount(owner: String!, balance: Float!, currency: String!): Account
+  deposit(accountId: String!, amount: Float!): Transaction
+  withdraw(accountId: String!, amount: Float!): Transaction
+  transfer(fromAccountId: String!, toAccountId: String!, amount: Float!): Transaction
+}

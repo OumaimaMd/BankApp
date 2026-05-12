@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package transaction;
+
+// ── Messages ──────────────────────────────────────
+
+message Transaction {
+  string id       = 1;
+  string type     = 2;  // "deposit" | "withdrawal" | "transfer"
+  string accountId = 3;
+  float  amount   = 4;
+  string toAccountId = 5; // utilisé seulement pour transfer
+  string timestamp = 6;
+}
+
+message DepositRequest {
+  string accountId = 1;
+  float  amount    = 2;
+}
+
+message DepositResponse {
+  float  newBalance   = 1;
+  string transactionId = 2;
+}
+
+message WithdrawRequest {
+  string accountId = 1;
+  float  amount    = 2;
+}
+
+message WithdrawResponse {
+  float  newBalance   = 1;
+  string transactionId = 2;
+}
+
+message TransferRequest {
+  string fromAccountId = 1;
+  string toAccountId   = 2;
+  float  amount        = 3;
+}
+
+message TransferResponse {
+  float  newBalance   = 1;
+  string transactionId = 2;
+}
+
+//Service 
+
+service TransactionService {
+  rpc Deposit  (DepositRequest)  returns (DepositResponse);
+  rpc Withdraw (WithdrawRequest) returns (WithdrawResponse);
+  rpc Transfer (TransferRequest) returns (TransferResponse);
+}
