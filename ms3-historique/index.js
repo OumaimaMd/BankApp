@@ -5,14 +5,15 @@ const { Kafka } = require('kafkajs');
 const { createRxDatabase } = require('rxdb');
 const { getRxStorageMemory } = require('rxdb/plugins/storage-memory');
 
-// ── Charger le proto ──────────────────────────────
+const PROTO_PATH = process.env.PROTO_PATH || path.join(__dirname, '../proto');
+//  Charger le proto 
 const packageDef = protoLoader.loadSync(
   path.join(__dirname, '../proto/history.proto'),
   { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true }
 );
 const historyProto = grpc.loadPackageDefinition(packageDef).history;
 
-// ── Schéma RxDB ───────────────────────────────────
+//  Schéma RxDB 
 const historySchema = {
   version: 0,
   primaryKey: 'id',
@@ -28,7 +29,7 @@ const historySchema = {
   required: ['id', 'accountId', 'type', 'amount', 'timestamp'],
 };
 
-// ── Initialiser RxDB ──────────────────────────────
+//  Initialiser RxDB 
 let historyCollection;
 
 async function initDB() {
@@ -38,11 +39,11 @@ async function initDB() {
   });
   await db.addCollections({ history: { schema: historySchema } });
   historyCollection = db.history;
-  console.log('✅ RxDB connecté');
+  console.log('RxDB connecté');
 }
 
-// ── Kafka Consumer ────────────────────────────────
-const kafka = new Kafka({ brokers: ['localhost:9092'] });
+//  Kafka Consumer 
+const kafka = new Kafka({ brokers: [process.env.KAFKA_BROKER || 'localhost:9092'] });
 const consumer = kafka.consumer({ groupId: 'history-group' });
 
 async function startKafkaConsumer() {
@@ -52,7 +53,7 @@ async function startKafkaConsumer() {
   await consumer.run({
     eachMessage: async ({ message }) => {
       const data = JSON.parse(message.value.toString());
-      console.log('📥 Kafka reçu:', data);
+      console.log('Kafka reçu:', data);
 
       await historyCollection.insert({
         id:         data.id,
@@ -63,11 +64,11 @@ async function startKafkaConsumer() {
         timestamp:  data.timestamp,
       });
 
-      console.log('💾 Historique sauvegardé:', data.id);
+      console.log('Historique sauvegardé:', data.id);
     },
   });
 
-  console.log('✅ Kafka consumer connecté — écoute transaction.done');
+  console.log('Kafka consumer connecté — écoute transaction.done');
 }
 
 //  Implémentation gRPC 
@@ -88,7 +89,7 @@ const service = {
 
 };
 
-// ── Démarrer tout ─────────────────────────────────
+//  Démarrer tout 
 async function main() {
   await initDB();
   await startKafkaConsumer();

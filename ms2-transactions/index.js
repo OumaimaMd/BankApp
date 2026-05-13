@@ -4,7 +4,8 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const { Kafka } = require('kafkajs');
 
-// ── Charger les protos ────────────────────────────
+const PROTO_PATH = process.env.PROTO_PATH || path.join(__dirname, '../proto');
+//Charger les protos 
 const packageDef = protoLoader.loadSync(
   path.join(__dirname, '../proto/transaction.proto'),
   { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true }
@@ -17,10 +18,10 @@ const accountPackageDef = protoLoader.loadSync(
 );
 const accountProto = grpc.loadPackageDefinition(accountPackageDef).account;
 
-// ── Base de données SQLite3 ───────────────────────
-const db = new sqlite3.Database('./transactions.db', (err) => {
+//Base de données SQLite3
+const db = new sqlite3.Database('/app/data/transactions.db', (err) => {
   if (err) console.error(err);
-  else console.log('✅ SQLite3 connecté');
+  else console.log('SQLite3 connecté');
 });
 
 db.run(`CREATE TABLE IF NOT EXISTS transactions (
@@ -33,9 +34,10 @@ db.run(`CREATE TABLE IF NOT EXISTS transactions (
   timestamp   TEXT NOT NULL
 )`);
 
-// ── Client gRPC vers MS1 ──────────────────────────
+//  Client gRPC vers MS1 
 const accountClient = new accountProto.AccountService(
-  'localhost:50051', grpc.credentials.createInsecure()
+  `${process.env.MS1_HOST || 'localhost'}:50051`,
+  grpc.credentials.createInsecure()
 );
 
 function grpcCall(client, method, request) {
@@ -47,13 +49,13 @@ function grpcCall(client, method, request) {
   });
 }
 
-// ── Kafka Producer ────────────────────────────────
-const kafka = new Kafka({ brokers: ['localhost:9092'] });
+//  Kafka Producer 
+const kafka = new Kafka({ brokers: [process.env.KAFKA_BROKER || 'localhost:9092'] });
 const producer = kafka.producer();
 
 async function startKafka() {
   await producer.connect();
-  console.log('✅ Kafka producer connecté');
+  console.log('Kafka producer connecté');
 }
 startKafka();
 
@@ -66,10 +68,10 @@ async function publishTransaction(data) {
     topic: 'transaction.done',
     messages: [{ key: data.accountId, value: JSON.stringify(data) }],
   });
-  console.log('📨 Kafka publié:', data);
+  console.log('Kafka publié:', data);
 }
 
-// ── Implémentation gRPC ───────────────────────────
+//  Implémentation gRPC 
 const service = {
 
   Deposit: async (call, callback) => {
@@ -172,10 +174,10 @@ const service = {
   },
 };
 
-// ── Démarrer le serveur gRPC ──────────────────────
+//  Démarrer le serveur gRPC 
 const server = new grpc.Server();
 server.addService(transactionProto.TransactionService.service, service);
 server.bindAsync('0.0.0.0:50052', grpc.ServerCredentials.createInsecure(), (err, port) => {
   if (err) { console.error(err); return; }
-  console.log(`💸 MS2 Transactions démarré sur le port ${port}`);
+  console.log(`MS2 Transactions démarré sur le port ${port}`);
 });

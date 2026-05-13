@@ -7,13 +7,14 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const fs = require('fs');
 
+const PROTO_PATH = process.env.PROTO_PATH || path.join(__dirname, '../proto');
 const app = express();
 
-// ── Middlewares GLOBAUX en tout premier ───────────
+//  Middlewares GLOBAUX en tout premier 
 app.use(cors());
 app.use(express.json());
 
-// ── Charger les protos ────────────────────────────
+//  Charger les protos 
 const accountProto = grpc.loadPackageDefinition(
   protoLoader.loadSync(path.join(__dirname, '../proto/account.proto'),
   { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true })
@@ -29,8 +30,21 @@ const historyProto = grpc.loadPackageDefinition(
   { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true })
 ).history;
 
-// ── Clients gRPC ──────────────────────────────────
+//  Clients gRPC 
+const MS1_HOST = process.env.MS1_HOST || 'localhost';
+const MS2_HOST = process.env.MS2_HOST || 'localhost';
+const MS3_HOST = process.env.MS3_HOST || 'localhost';
+
 const accountClient = new accountProto.AccountService(
+  `${MS1_HOST}:50051`, grpc.credentials.createInsecure()
+);
+const transactionClient = new transactionProto.TransactionService(
+  `${MS2_HOST}:50052`, grpc.credentials.createInsecure()
+);
+const historyClient = new historyProto.HistoryService(
+  `${MS3_HOST}:50053`, grpc.credentials.createInsecure()
+);
+/*const accountClient = new accountProto.AccountService(
   'localhost:50051', grpc.credentials.createInsecure()
 );
 const transactionClient = new transactionProto.TransactionService(
@@ -38,9 +52,10 @@ const transactionClient = new transactionProto.TransactionService(
 );
 const historyClient = new historyProto.HistoryService(
   'localhost:50053', grpc.credentials.createInsecure()
-);
+);*/
 
-// ── Helper gRPC ───────────────────────────────────
+
+//  Helper gRPC 
 function grpcCall(client, method, request) {
   return new Promise((resolve, reject) => {
     client[method](request, (err, response) => {
@@ -50,10 +65,10 @@ function grpcCall(client, method, request) {
   });
 }
 
-// ── Route accueil ─────────────────────────────────
+//  Route accueil 
 app.get('/', (req, res) => {
   res.json({
-    message: '🏦 Bank App API Gateway',
+    message: 'Bank App API Gateway',
     rest: {
       accounts: 'GET  /accounts',
       account:  'GET  /accounts/:id',
@@ -67,7 +82,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// ── Routes REST Comptes ───────────────────────────
+//  Routes REST Comptes 
 app.get('/accounts', async (req, res) => {
   try {
     const result = await grpcCall(accountClient, 'GetAllAccounts', {});
@@ -89,7 +104,7 @@ app.post('/accounts', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── Routes REST Transactions ──────────────────────
+//  Routes REST Transactions 
 app.post('/transactions/deposit', async (req, res) => {
   try {
     const result = await grpcCall(transactionClient, 'Deposit', req.body);
@@ -111,7 +126,7 @@ app.post('/transactions/transfer', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── Route REST Historique ─────────────────────────
+//  Route REST Historique 
 app.get('/history/:accountId', async (req, res) => {
   try {
     const result = await grpcCall(historyClient, 'GetHistory', { accountId: req.params.accountId });
@@ -119,7 +134,7 @@ app.get('/history/:accountId', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── GraphQL avec Apollo ───────────────────────────
+//  GraphQL avec Apollo 
 const typeDefs = fs.readFileSync(path.join(__dirname, 'schema.gql'), 'utf8');
 
 const resolvers = {
@@ -154,7 +169,7 @@ const resolvers = {
   },
 };
 
-// ── Démarrer Apollo + Express ─────────────────────
+//  Démarrer Apollo + Express 
 async function main() {
   const server = new ApolloServer({ typeDefs, resolvers });
   await server.start();
@@ -162,9 +177,9 @@ async function main() {
   app.use('/graphql', expressMiddleware(server));
 
   app.listen(3000, () => {
-    console.log('🚀 API Gateway sur http://localhost:3000');
-    console.log('📡 REST    → http://localhost:3000/accounts');
-    console.log('🔷 GraphQL → http://localhost:3000/graphql');
+    console.log('API Gateway sur http://localhost:3000');
+    console.log('REST    : http://localhost:3000/accounts');
+    console.log('GraphQL : http://localhost:3000/graphql');
   });
 }
 

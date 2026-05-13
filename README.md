@@ -1,11 +1,11 @@
-# 🏦 Bank App — Architecture Microservices
+# Bank App — Architecture Microservices
 
 Projet réalisé dans le cadre du cours **SoA et Microservices**  
 Enseignant : Dr. Salah Gontara | A.U. : 2025-26
 
 ---
 
-## 📋 Description
+## Description
 
 Application bancaire simplifiée basée sur une architecture microservices en Node.js.  
 Elle permet de gérer des comptes bancaires, effectuer des transactions (dépôt, retrait, virement)  
@@ -13,7 +13,7 @@ et consulter l'historique des opérations en temps réel via Kafka.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 Client (Postman)
 ↓ REST / GraphQL
 API Gateway (port 3000)
@@ -25,7 +25,7 @@ Kafka Broker (port 9092)
 Topic : transaction.done
 ---
 
-## 🛠️ Technologies utilisées
+## Technologies utilisées
 
 | Composant | Technologie |
 |---|---|
@@ -39,7 +39,7 @@ Topic : transaction.done
 
 ---
 
-## 📁 Structure du projet
+## Structure du projet
 bank-app/
 ├── proto/
 │   ├── account.proto
@@ -56,7 +56,7 @@ bank-app/
 └── schema.gql         ← Schéma GraphQL
 ---
 
-## ⚙️ Installation
+## Installation
 
 ### Prérequis
 - Node.js v20+
@@ -79,7 +79,7 @@ cd api-gateway && npm install && cd ..
 
 ---
 
-## 🚀 Exécution
+## Exécution
 
 ### 1. Démarrer Kafka
 ```bash
@@ -109,7 +109,7 @@ cd api-gateway && node index.js
 
 ---
 
-## 📡 Endpoints REST
+##  Endpoints REST
 
 ### Comptes
 | Méthode | Endpoint | Description |
@@ -132,7 +132,7 @@ cd api-gateway && node index.js
 
 ---
 
-## 🔷 Schéma GraphQL
+## Schéma GraphQL
 
 ### Queries
 ```graphql
@@ -151,7 +151,7 @@ transfer(fromAccountId: String!, toAccountId: String!, amount: Float!): Transact
 
 ---
 
-## 📨 Topics Kafka
+## Topics Kafka
 
 | Topic | Producteur | Consommateur | Contenu |
 |---|---|---|---|
@@ -165,7 +165,7 @@ Quand une transaction est effectuée (dépôt, retrait, virement) :
 
 ---
 
-## 🗄️ Bases de données
+## Bases de données
 
 | Microservice | Type | Fichier | Tables/Collections |
 |---|---|---|---|
@@ -175,7 +175,7 @@ Quand une transaction est effectuée (dépôt, retrait, virement) :
 
 ---
 
-## 👤 Auteur
+## Auteur
 
 - **Nom :** Oumaima Mdaini
 - **Classe :** 4émeGL-Groupe1

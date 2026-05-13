@@ -3,6 +3,9 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
+const PROTO_PATH = process.env.PROTO_PATH || path.join(__dirname, '../proto');
+
+
 //Charger le proto
 const packageDef = protoLoader.loadSync(
   path.join(__dirname, '../proto/account.proto'),
@@ -11,7 +14,7 @@ const packageDef = protoLoader.loadSync(
 const accountProto = grpc.loadPackageDefinition(packageDef).account;
 
 //Base de données SQLite3
-const db = new sqlite3.Database('./accounts.db', (err) => {
+const db = new sqlite3.Database('/app/data/accounts.db', (err) => {
   if (err) console.error(err);
   else console.log('✅ SQLite3 connecté');
 });
