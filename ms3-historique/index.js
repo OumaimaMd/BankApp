@@ -98,7 +98,7 @@ async function main() {
   server.addService(historyProto.HistoryService.service, service);
   server.bindAsync('0.0.0.0:50053', grpc.ServerCredentials.createInsecure(), (err, port) => {
     if (err) { console.error(err); return; }
-    console.log(`📜 MS3 Historique démarré sur le port ${port}`);
+    console.log(`MS3 Historique démarré sur le port ${port}`);
   });
 }
 

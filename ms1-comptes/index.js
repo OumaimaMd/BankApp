@@ -16,7 +16,7 @@ const accountProto = grpc.loadPackageDefinition(packageDef).account;
 //Base de données SQLite3
 const db = new sqlite3.Database('/app/data/accounts.db', (err) => {
   if (err) console.error(err);
-  else console.log('✅ SQLite3 connecté');
+  else console.log('SQLite3 connecté');
 });
 
 db.run(`CREATE TABLE IF NOT EXISTS accounts (
@@ -84,5 +84,5 @@ const server = new grpc.Server();
 server.addService(accountProto.AccountService.service, service);
 server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), (err, port) => {
   if (err) { console.error(err); return; }
-  console.log(`🏦 MS1 Comptes démarré sur le port ${port}`);
+  console.log(`MS1 Comptes démarré sur le port ${port}`);
 });
