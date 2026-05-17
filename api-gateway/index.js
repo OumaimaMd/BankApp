@@ -44,17 +44,6 @@ const transactionClient = new transactionProto.TransactionService(
 const historyClient = new historyProto.HistoryService(
   `${MS3_HOST}:50053`, grpc.credentials.createInsecure()
 );
-/*const accountClient = new accountProto.AccountService(
-  'localhost:50051', grpc.credentials.createInsecure()
-);
-const transactionClient = new transactionProto.TransactionService(
-  'localhost:50052', grpc.credentials.createInsecure()
-);
-const historyClient = new historyProto.HistoryService(
-  'localhost:50053', grpc.credentials.createInsecure()
-);*/
-
-
 //  Helper gRPC 
 function grpcCall(client, method, request) {
   return new Promise((resolve, reject) => {

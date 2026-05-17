@@ -12,11 +12,11 @@ message HistoryEntry {
   float  newBalance = 5;
   string timestamp = 6;
 }
-
+//Requête envoyée au serveur
 message GetHistoryRequest {
   string accountId = 1;
 }
-
+//Réponse du serveur
 message GetHistoryResponse {
   repeated HistoryEntry entries = 1;
 }
